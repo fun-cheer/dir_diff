@@ -110,8 +110,22 @@ static void diff_nodes(TREE_NODE *node1, TREE_NODE *node2) {
     //
 }
 
-static void print_nodes(TREE_NODE *node, bool found = false) {
-    //
+static void print_nodes(TREE_NODE *node, bool found = false, int depth = 0) {
+    assert(node);
+
+    for (int i = 0; i < depth; i++) {
+        printf("|-- ");
+    }
+
+    printf("%s, %s\n", node->name, dir_type_name(node->type));
+
+    if (node->child_node) {
+        TREE_NODE *pnode = (TREE_NODE *)(node->child_node);
+        for (int i = 0; i < node->child_num; i++) {
+            TREE_NODE *cnode = &(pnode[i]);
+            print_nodes(cnode, found, depth + 1);
+        }
+    }
 }
 
 static void release_node(TREE_NODE *node) {
@@ -173,6 +187,11 @@ int main(int argc, char *argv[]) {
     traverse_dir(root2->name, root2);
 
     diff_nodes(root1, root2);
+
+    printf("+++++%s+++++\n", root1->name);
+    print_nodes(root1);
+    printf("+++++%s+++++\n", root2->name);
+    print_nodes(root2);
 
     release_node(root1);
     release_node(root2);
