@@ -107,17 +107,46 @@ static void traverse_dir(const char *name, TREE_NODE *node, int depth = 0) {
 }
 
 static void diff_nodes(TREE_NODE *node1, TREE_NODE *node2) {
-    //
+    if (strcmp(node1->name, node2->name) == 0) {
+        node1->found = true;
+        node2->found = true;
+    }
+
+    if (node1->child_node && node2->child_node) {
+        TREE_NODE *p1 = (TREE_NODE *)(node1->child_node);
+        TREE_NODE *p2 = (TREE_NODE *)(node2->child_node);
+
+        for (int i = 0; i < node1->child_num; i++) {
+            TREE_NODE *c1 = &(p1[i]);
+
+            for (int j = 0; j < node2->child_num; j++) {
+                TREE_NODE *c2 = &(p2[j]);
+                if (c2->found) {
+                    continue;
+                }
+
+                if (strcmp(c1->name, c2->name) == 0) {
+                    c1->found = true;
+                    c2->found = true;
+
+                    diff_nodes(c1, c2);
+                    break;
+                }
+            }
+        }
+    }
 }
 
 static void print_nodes(TREE_NODE *node, bool found = false, int depth = 0) {
     assert(node);
 
-    for (int i = 0; i < depth; i++) {
-        printf("|-- ");
-    }
+    if (node->found == false) {
+        for (int i = 0; i < depth; i++) {
+            printf("|-- ");
+        }
 
-    printf("%s, %s\n", node->name, dir_type_name(node->type));
+        printf("%s, %s\n", node->name, dir_type_name(node->type));
+    }
 
     if (node->child_node) {
         TREE_NODE *pnode = (TREE_NODE *)(node->child_node);
